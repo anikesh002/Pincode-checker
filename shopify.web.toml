@@ -3,4 +3,4 @@ roles = ["frontend", "backend"]
 webhooks_path = "/api/webhooks"
 [commands]
 predev = "npm exec prisma generate"
-dev = "npm exec prisma migrate deploy && npm exec remix vite:dev"
+dev = "npm exec prisma db push --accept-data-loss && npm exec remix vite:dev"
