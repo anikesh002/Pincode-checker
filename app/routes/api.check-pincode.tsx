@@ -6,12 +6,25 @@ import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import prisma from "../db.server";
 
-// Simple in-memory rate limiter (use Redis in production)
+// ─── Rate Limiter with auto-cleanup ──────────────────────────────────────
 const rateLimitMap = new Map<string, { count: number; reset: number }>();
 const RATE_LIMIT = 60; // requests per minute per shop+IP
 const WINDOW_MS = 60_000;
+const CLEANUP_INTERVAL_MS = 5 * 60_000; // clean stale entries every 5 min
+
+// Prevent memory leaks by cleaning up expired entries periodically
+let lastCleanup = Date.now();
+function cleanupRateLimitMap() {
+  const now = Date.now();
+  if (now - lastCleanup < CLEANUP_INTERVAL_MS) return;
+  lastCleanup = now;
+  for (const [key, entry] of rateLimitMap) {
+    if (now > entry.reset) rateLimitMap.delete(key);
+  }
+}
 
 function isRateLimited(key: string): boolean {
+  cleanupRateLimitMap();
   const now = Date.now();
   const entry = rateLimitMap.get(key);
   if (!entry || now > entry.reset) {
@@ -23,24 +36,24 @@ function isRateLimited(key: string): boolean {
   return false;
 }
 
+// ─── CORS headers ────────────────────────────────────────────────────────
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+  "Cache-Control": "no-store",
+};
+
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const url = new URL(request.url);
-  const pincode = url.searchParams.get("pincode")?.trim();
-  const shop = url.searchParams.get("shop")?.trim();
-  const productId = url.searchParams.get("product_id") || undefined;
-
-  // CORS headers — allow storefront to call this
-  const corsHeaders = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
-    "Cache-Control": "no-store",
-  };
-
   // Handle preflight
   if (request.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: corsHeaders });
   }
+
+  const url = new URL(request.url);
+  const pincode = url.searchParams.get("pincode")?.trim();
+  const shop = url.searchParams.get("shop")?.trim();
+  const productId = url.searchParams.get("product_id") || undefined;
 
   if (!pincode || !shop) {
     return json(
@@ -49,9 +62,18 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     );
   }
 
+  // Validate pincode format
   if (!/^\d{6}$/.test(pincode)) {
     return json(
       { error: "Invalid pincode format" },
+      { status: 400, headers: corsHeaders }
+    );
+  }
+
+  // Validate shop format (must be a *.myshopify.com domain)
+  if (!/^[a-zA-Z0-9][a-zA-Z0-9\-]*\.myshopify\.com$/.test(shop)) {
+    return json(
+      { error: "Invalid shop parameter" },
       { status: 400, headers: corsHeaders }
     );
   }
@@ -63,6 +85,18 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     return json(
       { error: "Too many requests" },
       { status: 429, headers: corsHeaders }
+    );
+  }
+
+  // Verify shop exists in our database (has installed the app)
+  const shopSession = await prisma.session.findFirst({
+    where: { shop },
+    select: { shop: true },
+  });
+  if (!shopSession) {
+    return json(
+      { error: "Shop not found" },
+      { status: 404, headers: corsHeaders }
     );
   }
 
@@ -93,9 +127,9 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       accentColor: true,
       borderRadius: true,
       customCss: true,
-      orderCutoffTime: true, // @ts-ignore
+      orderCutoffTime: true,
     },
-  }) as any;
+  });
 
   // Log this check for analytics (fire-and-forget)
   prisma.pincodeCheck

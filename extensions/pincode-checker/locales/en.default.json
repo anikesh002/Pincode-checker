@@ -1,10 +1,15 @@
 {
-  "ratings": {
-    "stars": {
-      "label": "Ratings"
-    },
-    "home": {
-      "recommendationText": "Recommended Product!"
-    }
+  "pincode_checker": {
+    "name": "Pincode Delivery Checker",
+    "header": "Check Delivery Availability",
+    "button": "Check",
+    "placeholder": "Enter pincode",
+    "express_label": "Express Delivery",
+    "standard_label": "Standard Delivery",
+    "unavailable_label": "Delivery not available",
+    "cod_available": "Cash on Delivery available",
+    "loading": "Checking...",
+    "error": "Unable to check delivery. Please try again.",
+    "configure_api": "Please configure the App API URL in Theme Editor."
   }
 }

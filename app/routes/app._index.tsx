@@ -353,31 +353,54 @@ export default function Dashboard() {
 
         <Card>
           <Box padding="400">
-            <InlineStack align="space-between" blockAlign="center">
-              <BlockStack gap="100">
-                <Text variant="headingMd" as="h2">
-                  Widget Style:{" "}
-                  <Badge tone="success">
-                    {settings?.widgetVariant || "minimal"}
-                  </Badge>
+            <BlockStack gap="400">
+              <InlineStack align="space-between" blockAlign="center">
+                <BlockStack gap="100">
+                  <Text variant="headingMd" as="h2">
+                    Widget Style:{" "}
+                    <Badge tone="success">
+                      {settings?.widgetVariant || "minimal"}
+                    </Badge>
+                  </Text>
+                  <Text variant="bodySm" tone="subdued" as="p">
+                    Currently active on your storefront product pages
+                  </Text>
+                </BlockStack>
+                <InlineStack gap="300">
+                  <Button onClick={() => navigate("/app/settings")}>
+                    Change Style
+                  </Button>
+                  <Button
+                    variant="primary"
+                    url={`https://${shop}/admin/themes/current/editor?context=apps`}
+                    target="_blank"
+                  >
+                    Add Widget to Theme →
+                  </Button>
+                </InlineStack>
+              </InlineStack>
+              <Divider />
+              <BlockStack gap="200">
+                <Text variant="headingSm" as="h3">
+                  📋 Setup Instructions
                 </Text>
-                <Text variant="bodySm" tone="subdued" as="p">
-                  Currently active on your storefront product pages
+                <Text variant="bodySm" as="p" tone="subdued">
+                  1. Click <strong>"Add Widget to Theme"</strong> above to open the Theme Editor{"\n"}
+                </Text>
+                <Text variant="bodySm" as="p" tone="subdued">
+                  2. Navigate to your <strong>Product page</strong> template
+                </Text>
+                <Text variant="bodySm" as="p" tone="subdued">
+                  3. Click <strong>"Add block"</strong> → Find <strong>"Pincode Delivery Checker"</strong> under Apps
+                </Text>
+                <Text variant="bodySm" as="p" tone="subdued">
+                  4. In the block settings, paste your <strong>App API URL</strong> (shown in your terminal when running the app)
+                </Text>
+                <Text variant="bodySm" as="p" tone="subdued">
+                  5. Click <strong>Save</strong> — the widget is now live on your product pages!
                 </Text>
               </BlockStack>
-              <InlineStack gap="300">
-                <Button onClick={() => navigate("/app/settings")}>
-                  Change Style
-                </Button>
-                <Button
-                  variant="primary"
-                  url={`https://${shop}/admin/themes`}
-                  target="_blank"
-                >
-                  Open Theme Editor →
-                </Button>
-              </InlineStack>
-            </InlineStack>
+            </BlockStack>
           </Box>
         </Card>
       </BlockStack>

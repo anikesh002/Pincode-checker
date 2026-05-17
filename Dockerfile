@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:20-alpine
 RUN apk add --no-cache openssl
 
 EXPOSE 3000
@@ -17,5 +17,9 @@ RUN npm remove @shopify/cli
 COPY . .
 
 RUN npm run build
+
+# Health check for container orchestration
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/ || exit 1
 
 CMD ["npm", "run", "docker-start"]
