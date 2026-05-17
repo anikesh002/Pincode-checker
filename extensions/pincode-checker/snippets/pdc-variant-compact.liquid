@@ -1,0 +1,24 @@
+{% doc %}
+Renders the Compact Orange variant of the Pincode Delivery Checker widget.
+@param {object} block - The block object with settings
+@example
+{% render 'pdc-variant-compact', block: block %}
+{% enddoc %}
+
+<div class="pdc-inner">
+  <div class="pdc-compact-header">
+    <span class="pdc-compact-label">📍 DELIVERY CHECKER</span>
+  </div>
+  <div class="pdc-compact-body">
+    <div class="pdc-input-row">
+      <input type="text" class="pdc-input" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="Enter 6-digit pincode" aria-label="Enter pincode to check delivery" />
+      <button class="pdc-button" type="button" disabled aria-label="Check delivery">
+        <span class="pdc-button-text">{{ block.settings.button_text | escape }}</span>
+        <span class="pdc-button-loading" aria-hidden="true" style="display:none">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"/></svg>
+        </span>
+      </button>
+    </div>
+    <div class="pdc-result" role="status" aria-live="polite" style="display:none"></div>
+  </div>
+</div>

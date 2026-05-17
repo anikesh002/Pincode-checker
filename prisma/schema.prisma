@@ -1,0 +1,100 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:dev.sqlite"
+}
+
+// ─── Shopify Session Storage ───────────────────────────────────────────────
+model Session {
+  id            String    @id
+  shop          String
+  state         String
+  isOnline      Boolean   @default(false)
+  scope         String?
+  expires       DateTime?
+  accessToken   String
+  userId        BigInt?
+  firstName     String?
+  lastName      String?
+  email         String?
+  accountOwner  Boolean   @default(false)
+  locale        String?
+  collaborator  Boolean?  @default(false)
+  emailVerified Boolean?  @default(false)
+  refreshToken        String?
+  refreshTokenExpires DateTime?
+}
+
+// ─── App Settings per Shop ─────────────────────────────────────────────────
+model ShopSettings {
+  id                String   @id @default(cuid())
+  shop              String   @unique
+  widgetVariant     String   @default("minimal")   // minimal | bold | inline | pill | compact | premium
+  primaryColor      String   @default("#111111")
+  accentColor       String   @default("#22c55e")
+  buttonText        String   @default("Check")
+  placeholderText   String   @default("Enter pincode")
+  showCodBadge      Boolean  @default(true)
+  showCityName      Boolean  @default(true)
+  borderRadius      Int      @default(8)
+  customCss         String   @default("")
+  expressLabel      String   @default("Express Delivery")
+  standardLabel     String   @default("Standard Delivery")
+  unavailableLabel  String   @default("Delivery not available")
+  orderCutoffTime   String   @default("14:00")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+// ─── Serviceable Pincodes ──────────────────────────────────────────────────
+model Pincode {
+  id           String   @id @default(cuid())
+  shop         String
+  pincode      String
+  city         String
+  state        String
+  deliveryType String   @default("standard")  // express | standard | unavailable
+  deliveryDays String   @default("3-5")
+  codAvailable Boolean  @default(true)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([shop, pincode])
+  @@index([shop])
+  @@index([pincode])
+}
+
+// ─── Check Analytics ──────────────────────────────────────────────────────
+model PincodeCheck {
+  id          String   @id @default(cuid())
+  shop        String
+  pincode     String
+  found       Boolean
+  productId   String?
+  pageUrl     String?
+  checkedAt   DateTime @default(now())
+
+  @@index([shop])
+  @@index([shop, checkedAt])
+  @@index([pincode])
+}
+
+// ─── Bulk Import Jobs ─────────────────────────────────────────────────────
+model ImportJob {
+  id          String   @id @default(cuid())
+  shop        String
+  status      String   @default("pending")  // pending | processing | done | failed
+  totalRows   Int      @default(0)
+  importedRows Int     @default(0)
+  errorRows   Int      @default(0)
+  fileName    String?
+  errorLog    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

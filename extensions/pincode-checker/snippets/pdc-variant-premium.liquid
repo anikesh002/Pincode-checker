@@ -1,0 +1,29 @@
+{% doc %}
+Renders the Premium Progress variant of the Pincode Delivery Checker widget.
+@param {object} block - The block object with settings
+@example
+{% render 'pdc-variant-premium', block: block %}
+{% enddoc %}
+
+<div class="pdc-inner">
+  <div class="pdc-premium-header">
+    <div>
+      <h4 class="pdc-premium-title">Delivery Check</h4>
+      <p class="pdc-premium-subtitle">Ships from our Warehouse</p>
+    </div>
+    <span class="pdc-premium-badge">PAN India</span>
+  </div>
+  <div class="pdc-premium-input-wrap">
+    <input type="text" class="pdc-input" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="{{ block.settings.placeholder_text | escape }}" aria-label="Enter pincode to check delivery" />
+    <button class="pdc-button" type="button" disabled aria-label="Verify delivery">
+      <span class="pdc-button-text">Verify</span>
+      <span class="pdc-button-loading" aria-hidden="true" style="display:none">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"/></svg>
+      </span>
+    </button>
+  </div>
+  <div class="pdc-progress-track" style="display:none">
+    <div class="pdc-progress-bar"></div>
+  </div>
+  <div class="pdc-result" role="status" aria-live="polite" style="display:none"></div>
+</div>

@@ -1,0 +1,75 @@
+{% assign widget_id = 'pdc-' | append: block.id %}
+
+<div
+  id="{{ widget_id }}"
+  class="pdc-widget pdc-variant--{{ block.settings.variant }}"
+  style="--pdc-primary: {{ block.settings.primary_color }}; --pdc-accent: {{ block.settings.accent_color }}; --pdc-radius: {{ block.settings.border_radius }}px;"
+  data-api-url="{{ block.settings.api_url }}"
+  data-shop="{{ shop.permanent_domain }}"
+  data-product-id="{{ product.id }}"
+  data-show-cod="{{ block.settings.show_cod }}"
+  data-show-city="{{ block.settings.show_city }}"
+  data-variant="{{ block.settings.variant }}"
+  {{ block.shopify_attributes }}
+>
+  {% case block.settings.variant %}
+    {% when 'bold' %}
+      {% render 'pdc-variant-bold', block: block %}
+    {% when 'inline' %}
+      {% render 'pdc-variant-inline', block: block %}
+    {% when 'pill' %}
+      {% render 'pdc-variant-pill' %}
+    {% when 'compact' %}
+      {% render 'pdc-variant-compact', block: block %}
+    {% when 'premium' %}
+      {% render 'pdc-variant-premium', block: block %}
+    {% else %}
+      {% render 'pdc-variant-minimal', block: block %}
+  {% endcase %}
+</div>
+
+{{ 'pincode-checker.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'pincode-checker.js' | asset_url }}" defer="defer"></script>
+
+{% schema %}
+{
+  "name": "Pincode Delivery Checker",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "api_url",
+      "label": "App API URL",
+      "info": "Paste the App URL from your terminal (e.g., https://...trycloudflare.com)",
+      "default": "https://example.com"
+    },
+    { "type": "header", "content": "Widget Style" },
+    {
+      "type": "select",
+      "id": "variant",
+      "label": "Widget Variant",
+      "options": [
+        { "value": "minimal", "label": "Clean Minimal" },
+        { "value": "bold", "label": "Dark Premium" },
+        { "value": "inline", "label": "Inline Strip" },
+        { "value": "pill", "label": "Pill Floating" },
+        { "value": "compact", "label": "Compact Orange" },
+        { "value": "premium", "label": "Premium Progress" }
+      ],
+      "default": "minimal"
+    },
+    { "type": "color", "id": "primary_color", "label": "Primary Color", "default": "#111111" },
+    { "type": "color", "id": "accent_color", "label": "Accent / Success Color", "default": "#22c55e" },
+    { "type": "range", "id": "border_radius", "min": 0, "max": 24, "step": 2, "unit": "px", "label": "Border Radius", "default": 8 },
+    { "type": "header", "content": "Text Labels" },
+    { "type": "text", "id": "header_text", "label": "Header Text", "default": "Check Delivery Availability" },
+    { "type": "text", "id": "button_text", "label": "Button Text", "default": "Check" },
+    { "type": "text", "id": "placeholder_text", "label": "Input Placeholder", "default": "Enter pincode" },
+    { "type": "header", "content": "Display Options" },
+    { "type": "checkbox", "id": "icon_visible", "label": "Show delivery icon", "default": true },
+    { "type": "checkbox", "id": "show_city", "label": "Show city & state", "default": true },
+    { "type": "checkbox", "id": "show_cod", "label": "Show COD availability", "default": true },
+    { "type": "textarea", "id": "custom_css", "label": "Custom CSS", "default": "/* Custom CSS */" }
+  ]
+}
+{% endschema %}
